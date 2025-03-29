@@ -191,9 +191,106 @@ delete from layoffs_Staging2
 where total_laid_off is null 
 and percentage_laid_off is null;
 
+-- =========================================================================================================================================
+
+-- Exploratory Data Analysis
 select * from layoffs_Staging2;
- 
+
+-- Find the maximum number of layoffs and the highest layoff percentage
+select max(total_laid_off),
+max(percentage_laid_off)
+from layoffs_Staging2;
+
+-- Retrieve layoffs where 100% of employees were laid off, sorted by total layoffs (descending)
+select total_laid_off, 
+	percentage_laid_off from layoffs_Staging2
+    where percentage_laid_off = 1
+    order by 1 desc;
+
+-- Total layoffs per company, sorted by highest layoffs
+select company, sum(total_laid_off) 
+from layoffs_Staging2
+group by 1
+order by 2 desc;
+
+-- Find the earliest and latest layoff dates in the dataset
+select min(`date`), max(`date`)
+from layoffs_Staging2;
+
+-- Total layoffs per industry, sorted by highest layoffs
+select industry, sum(total_laid_off)
+from layoffs_Staging2
+group by 1
+order by 2 desc;
+
+-- Total layoffs per country, sorted by highest layoffs
+select country, sum(total_laid_off)
+from layoffs_Staging2
+group by 1
+order by 2 desc;
+
+-- Total layoffs per year, sorted by year (descending)
+select year(`date`), sum(total_laid_off)
+from layoffs_Staging2
+group by 1
+order by 1 desc;
+
+-- Total layoffs per startup stage per year, sorted by year (descending)
+select stage, year(`date`), sum(total_laid_off)
+from layoffs_Staging2
+group by 1, 2
+order by 2 desc;
+
+
+-- Rolling total layoffs progression by month
+with rolling_total as
+(select substring(`date`, 1, 7) as `month`, sum(total_laid_off) as total_rid_off
+from layoffs_Staging2
+where substring(`date`, 1, 7) is not null
+group by 1
+order by 1)
+select `month`, total_rid_off, 
+sum(total_rid_off) over(
+		order by `month`
+	) as cumulative_sum_by_months
+from rolling_total;
 
 
 
- 
+
+-- Top 5 companies with the highest layoffs per year
+with company_year (company, `year`, total_rid_off) 
+as (
+select company, year(`date`) as `year`, sum(total_laid_off) as total_rid_off
+from layoffs_Staging2
+group by 1,2)
+, company_year_rank as(
+select *, dense_rank() over(
+		partition by `year` order by total_rid_off desc
+        ) as ranking
+from company_year
+where `year` is not null)
+select * from company_year_rank
+where ranking <=5;
+
+
+-- Top 5 industries with the highest layoffs per month in each year
+with industry_year (industry, `year_month`, total_rid_off) 
+as (
+select industry, substring(`date`, 1, 7) as `year_month`, sum(total_laid_off) as total_rid_off
+from layoffs_Staging2
+group by 1,2)
+, industry_year_rank as(
+select *, dense_rank() over(
+		partition by `year_month` order by total_rid_off desc
+        ) as ranking
+from industry_year
+where `year_month` is not null)
+select * from industry_year_rank
+where ranking <=5;
+
+
+
+
+        
+        
