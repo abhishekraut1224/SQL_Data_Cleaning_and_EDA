@@ -19,7 +19,7 @@ This project involves analyzing global layoffs data using SQL. The goal is to cl
 - Data from the original table was inserted into the staging table.
 
 ### 🔹 Removing Duplicates
-- A unique `ID` column for identification was added.
+- A unique `ID` column for identification was added, and after work done deleated
 - Used `ROW_NUMBER()` to find and delete duplicate rows.
 
 ### 🔹 Standardizing Data
@@ -68,7 +68,6 @@ This project provides a structured approach to **cleaning, transforming, and ana
 ✅ Explored key trends in layoffs across companies, industries, and countries.  
 ✅ Computed rolling totals and ranked top entities based on layoffs.
 
-This analysis can be used for business intelligence, workforce planning, and market research insights.
 
 ---
 ## Future Enhancements
@@ -78,7 +77,7 @@ This analysis can be used for business intelligence, workforce planning, and mar
 
 ---
 ### 🚀 **Author**: Abhishek Mahadev Raut  
-### 📅 **Date**: March 2025
+### 📅 **Date**: March 2025 -- Cleaning and EDA complete
 
 
 
